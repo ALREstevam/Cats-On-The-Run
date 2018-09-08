@@ -21,8 +21,13 @@
 
 
 **Amit’s Thoughts on Grids**
+
 [www-cs-students.stanford.edu](http://www-cs-students.stanford.edu/~amitp/game-programming/grids/)
 
+
+**Best-first search**
+
+[courses.cs.washington.edu](https://courses.cs.washington.edu/courses/cse326/03su/homework/hw3/bestfirstsearch.html)
 
 **Algoritmo A**
 
