@@ -42,7 +42,7 @@ cat3 = BestFirstSearchCat(
     distance_type=DistanceTypes.HEX
 )
 
-Pathfind(cat3, grid, mod.minimum)
+Pathfind([cat1, cat2, cat3], grid, mod.minimum).executePrinting()
 
 
 
