@@ -49,7 +49,7 @@
 
 [theory.stanford.edu/...](http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html)
 
-**Alguns tipos de disância**
+**Alguns tipos de distância**
 
 [lyfat.wordpress.com](https://lyfat.wordpress.com/2012/05/22/euclidean-vs-chebyshev-vs-manhattan-distance/)
 
@@ -71,7 +71,7 @@
 │
 │
 └───`cats` - Diretório onde ficarão os gatos (cada gato deve receber um nó de entrada e um de saída e fazer o caminho usando algum algoritmo ou heurística)
-    │   `CatFather.py` - Pai de todos os gatos - ao criar um novo gato herde dele
+    │   `CatFather.py` - Pai de todos os gatos - ao criar um novo gato, herde dele
     │
     ├───`astarcat` 
     │   │   `AstarCat.py` - Gato que faz a busca com o algoritmo A* (V1 - NÃO USAR)
@@ -105,7 +105,7 @@ Para visualizar o grid com os movimentos do gato use:
 		print(grid.show(cat))
 
 
-* Caso o caminho seja construído partindo do gato e indo para o objetivo use `reversed_direction = True` ao atribuir o objeto `Path` ao gato. caso o caminho seja construído do fim para o começo use `reversed_direction = False`: construindo do começo para o fim cada ponto do labirinto apontará para um ponto anterior (mais perto do início) então o caminho formado será do fim para o incício... marcando `reversed_direction = True` o caminho resultante será invertido:
+* Caso o caminho seja construído partindo do gato e indo para o objetivo use `reversed_direction = True` ao atribuir o objeto `Path` ao gato. caso o caminho seja construído do fim para o começo use `reversed_direction = False`: construindo do começo para o fim cada ponto do labirinto apontará para um ponto anterior (mais perto do início) então o caminho formado será do fim para o início... marcando `reversed_direction = True` o caminho resultante será invertido:
 
 
 Sem inverter:
