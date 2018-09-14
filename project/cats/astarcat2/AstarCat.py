@@ -105,4 +105,4 @@ class AstarCat(CatFather):
             else:
                 solve_status = Solution.NO_SOLUTION
 
-        return {'status' : solve_status, 'iterations' : iteration_counter}
+        return solve_status

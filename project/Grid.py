@@ -106,10 +106,9 @@ class Grid:
 
         exitsList = self.exits
 
-
         answ = []
 
-        answ.append('GRID\n')
+        answ.append('\n')
         for row_index in range(self.rows):
 
             if not row_index % 2 == 0:

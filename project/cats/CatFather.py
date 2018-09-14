@@ -46,7 +46,13 @@ class CatFather:
         self.path = None
         self.open_set.add(self.start)
 
-    def find_path(self):
+    def find_path(self) -> Solution:
         pass
 
+
+    def __str__(self):
+        return str(self.__class__.__name__)
+
+    def __repr__(self):
+        return str(self.__class__.__name__)
 

@@ -13,6 +13,8 @@ class Path:
 
         self.distance = len(self.instructions) - 1
 
+    def get_distance(self):
+        return self.distance
 
     def get_positions(self):
         return list(map(lambda instruction: instruction[0], self.instructions))
