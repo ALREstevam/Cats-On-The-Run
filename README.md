@@ -121,3 +121,13 @@ Invertendo para o correto:
 INICIO -> ( ) -> ( ) -> ( ) -> ( ) -> FIM
 
 E, E, E, E, E,
+
+
+## Etapa 2 do projeto
+
+
+
+* Com o código para o gato fornecido pelo professor criar um algoritmo que crie bloqueios impedindo com que o gato fuja do labirinto.
+* O pegador faz seu movimento, em seguida o gato.
+
+![](imgs/game.gif)
