@@ -5,13 +5,10 @@ from random import shuffle
 from collections import deque
 import math
 
-random.seed(42)
 
 cat = eval(sys.argv[1])
 blocks = eval(sys.argv[2])
 exits = eval(sys.argv[3])
-
-
 
 class False_log:
     def write(self, str):
@@ -37,7 +34,6 @@ class Catcher:
 
         pass
 
-    @property
     def catch_them_all(self):
         solutions = []
 
