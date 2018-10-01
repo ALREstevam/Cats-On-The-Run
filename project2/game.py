@@ -95,7 +95,8 @@ def generate_random(used) :
 def valid_move_catcher(cat, catcher, blocks, exits) :
     try :
         catcher = tuple(eval(catcher)[:2])
-    except :
+    except Exception as e:
+        print(e)
         if DEBUG :
             print("Catcher makes an unintelligible move `{}`".format(str(catcher)))
         return "loss"
@@ -111,6 +112,7 @@ def valid_move_catcher(cat, catcher, blocks, exits) :
         if DEBUG :
             print("Catcher cannot block outside the grid")
         return "loss"
+
 
     return catcher
 
