@@ -1,11 +1,9 @@
 # encoding: utf-8
 
-import importlib
 import sys
 import random
 import math
 
-random.seed(42)
 
 cat    = eval(sys.argv[1])
 blocks = eval(sys.argv[2])

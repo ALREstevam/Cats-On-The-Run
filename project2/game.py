@@ -9,6 +9,7 @@ ANIMATION = True
 cat    = eval(sys.argv[1])
 blocks = eval(sys.argv[2])
 exits  = eval(sys.argv[3])
+conf_name  = str(sys.argv[4])
 
 catcher_path = 'my_catcher'
 
@@ -112,8 +113,6 @@ def valid_move_catcher(cat, catcher, blocks, exits) :
         if DEBUG :
             print("Catcher cannot block outside the grid")
         return "loss"
-
-
     return catcher
 
 def valid_move_cat(cat, direction, blocks, exits) :
@@ -163,7 +162,7 @@ while True :
         images.append(compute_image(cat, blocks, exits))
 
 
-    
+
     cat_output = subprocess.Popen(['python', 'gato.py', str(cat), str(blocks), str(exits)],
         stdout=subprocess.PIPE).communicate()[0].decode('utf-8').rstrip()
 
@@ -180,7 +179,7 @@ while True :
     
     
 if ANIMATION:
-    images[0].save('games/game_{}.gif'.format(0),
+    images[0].save('games/game_{}.gif'.format(conf_name),
                    save_all=True,
                    append_images=images[1:],
                    duration=200,

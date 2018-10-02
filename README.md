@@ -126,8 +126,36 @@ E, E, E, E, E,
 ## Etapa 2 do projeto
 
 
-
 * Com o código para o gato fornecido pelo professor criar um algoritmo que crie bloqueios impedindo com que o gato fuja do labirinto.
 * O pegador faz seu movimento, em seguida o gato.
 
 ![](imgs/game.gif)
+
+
+## Estrutura básica do projeto
+
+    
+    
+        │   `confs.bat` - arquivo que testa 100 tabuleiros 
+        │   `game.py` - arquivo que controla um jogo
+        │   `gato.py` - gato
+        │   `logfile.txt` - arquivo de log
+        │   `multithread_tester.py` - testa jogos usando mais de uma thread
+        │   `my_catcher.py` - cathcer escrito
+        │   `pegador.py` - cathcer fornecido pelo professor
+        │   `plano.pdf` - arquivo com a explicação do trabalho
+        │   `runOnce.bat` - arquivo para testar o catcher (uma vez)
+        │   `tester.py` - testa jogos usando uma única thread
+        │
+        ├───`games` - armazena o .gif com a execução
+        │       `game_0.gif`
+        │
+        └───`tabuleiros` - armazena tabuleiros vazios em diversos formatos
+                `tabuleiro.bmp`
+                `tabuleiro.eps`
+                `tabuleiro.gif`
+                `tabuleiro.jpg`
+                `tabuleiro.png`
+                `tabuleiro.tga`
+                `tabuleiro.tif`
+

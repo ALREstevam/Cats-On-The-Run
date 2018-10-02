@@ -4,6 +4,7 @@ import math
 from random import shuffle
 from collections import deque
 import math
+from HexDistance import Distance
 
 
 cat = eval(sys.argv[1])
@@ -13,13 +14,11 @@ exits = eval(sys.argv[3])
 class False_log:
     def write(self, str):
         pass
-
     def close(self):
         pass
 
-log = open('logfile.txt', 'a+')
-
-#log = False_log()
+#log = open('logfile.txt', 'a+')
+log = False_log()
 
 log.write('cat: {}\n'.format(cat))
 log.write('blocks: {}\n'.format(blocks))
@@ -27,12 +26,15 @@ log.write('exits: {}\n'.format(exits))
 
 
 class Catcher:
-    def __init__(self, cat_pos, walls, goals):
+    def __init__(self, cat_pos, walls : [], goals : []):
+        log.write('INITING CATCHER!\n')
         self.cat_pos = tuple(cat_pos)
-        self.walls = walls
-        self.goals = goals
+        self.walls = set(walls)
+        self.goals = set(goals)
 
         pass
+
+
 
     def catch_them_all(self):
         solutions = []
@@ -41,26 +43,28 @@ class Catcher:
         #Caso retorne None ou lance exceção, passa para o próximo método da lista
         #O nome colocado vai ser gravado no arquivo de log (ou não)
 
-        solutions.append([self.catch_trapped_cat,           'catchTrapped'])
-        #solutions.append([self.close_cat_is_near_exit,      'catNearExit'])
-        solutions.append([self.close_cat_is_near_exit_pathdist, 'catNearExitPathDist'])
-        solutions.append([self.catch_almost_trapped_cat,    'catchAlmostTrapped'])
-        solutions.append([self.heuristic_closer,            'heuristicCloser'])
-        solutions.append([self.close_around_cat,            'close_around_cat'])
-        solutions.append([self.generate_random_around_cat,  'randomAroundCat'])
-        #solutions.append([self.close_nearest_exit,          'closeNearestExit'])
-        solutions.append([self.close_path_nearest_exit,          'closePathNearestExit'])
-        solutions.append([self.generate_random_position,    'closeRandom'])
+
+        solutions.append([self.catch_trapped_cat,                       'catchTrapped'])
+        solutions.append([self.close_stategic,                          'close_stategic'])
+        solutions.append([self.close_cat_is_near_exit_pathdist,         'catNearExitPathDist'])
+        solutions.append([self.catch_almost_trapped_cat,                'catchAlmostTrapped'])
+        solutions.append([self.mess_with_cat,                           'mess_with_cat'])
+        solutions.append([self.heuristic_closer,                        'heuristicCloser'])
+        solutions.append([self.close_cat_is_near_exit,                  'catNearExit'])
+        solutions.append([self.close_nearest_exit,                      'closeNearestExit'])
+        solutions.append([self.close_around_cat,                        'close_around_cat'])
+        solutions.append([self.generate_random_around_cat,              'randomAroundCat'])
+        solutions.append([self.close_path_nearest_exit,                 'closePathNearestExit'])
+        solutions.append([self.generate_random_position,                'closeRandom'])
 
 
         for solution in solutions:
-            log.write('WALLS: {}\n'.format(self.walls))
-
             try:
-                result = solution[0]()
-                if self.evaluate_solution(result, solution[1]):
-                    log.write('\tRETURNING : `{}`\n\n'.format(result))
-                    return result
+                res = solution[0]()
+                if self.evaluate_solution(res, solution[1]):
+                    log.write('\tRETURNING : `{}`\n\n'.format(res))
+                    return res
+
             except Exception as ex:
                 log.write('EXCEPTION {}\n'.format(str(ex)))
                 pass
@@ -82,7 +86,15 @@ class Catcher:
                 return None
 
             nearest_exits.sort(key=lambda elem: elem['dist'])
-            nearest = nearest_exits[0]
+            nearest_dist = nearest_exits[0]['dist']
+
+            near_goals = []
+
+            for goal in nearest_exits:
+                if goal['dist'] == nearest_dist:
+                    near_goals.append(goal)
+
+            nearest = random.choice(near_goals)
 
             log.write('MIN DISTANCES\n')
             log.write(str(nearest_exits))
@@ -90,8 +102,78 @@ class Catcher:
 
             if nearest['dist'] <= 4:
                 return nearest['pos']
+            elif nearest['dist'] <= 7:
+                goals_count = self.get_valid_goal_neibours(nearest['pos'])
+                if goals_count >= 3:
+                    return nearest['pos']
             else:
                 return None
+
+    def close_stategic(self):
+        for i in range(11):
+            for j in range(11):
+                elem = (j,i)
+                goal_count = self.get_valid_goal_neibours(elem)
+                if goal_count >= 4 and self.path_distance(elem, self.cat_pos) > 4 and elem not in self.walls and elem != self.cat_pos:
+                    return elem
+        return None
+
+
+
+
+    def mess_with_cat(self):
+        cat = self.cat_pos
+
+        cat_neib = self.get_neibours_position(cat, exclude_non_walkable=True)
+
+        #Se algum dos vizinhos do gato for uma saída, não tente fechar o gato e sim a saída
+        for neib in cat_neib:
+            if neib in self.goals:
+                return None
+
+
+        r = cat[0]
+        c = cat[1]
+
+        candidates = {}
+        if r % 2 == 0:
+            candidates = {
+                (r, c + 1): [(r - 1, c + 1), (r + 1, c + 1)],
+                (r - 1, c): [(r - 1, c + 1), (r, c + 1)],
+                (r + 1, c + 1): [(r + 1, c + 1), (r, c + 1)],
+                (r - 1, c + 1): [(r, c + 1), (r - 1, c)],
+                (r + 1, c + 1): [(r, c + 1), (r + 1, c + 1)],
+                (r, c + 1): [(r - 1, c), (r + 1, c + 1)],
+            }
+        else:
+            candidates = {
+                (r, c + 1): [(r - 1, c), (r + 1, c)],
+                (r - 1, c + 1): [(r - 1, c), (r, c + 1)],
+                (r + 1, c + 1): [(r + 1, c), (r, c + 1)],
+                (r - 1, c): [(r, c + 1), (r - 1, c + 1)],
+                (r + 1, c): [(r, c + 1), (r + 1, c + 1)],
+                (r, c + 1): [(r + 1, c + 1), (r - 1, c + 1)],
+            }
+
+
+        possibilities = []
+        for to_close, match in candidates.items():
+            el1 = match[0]
+            el2 = match[1]
+
+            fisrt_match = el1 in self.walls  or el1[0] < 0 or el1[1] < 0 or el1[0] > 10 or el1[1] > 10
+            second_match = el2 in self.walls or el2[0] < 0 or el2[1] < 0 or el2[0] > 10 or el2[1] > 10
+
+            if fisrt_match and second_match \
+                    and to_close[0] >= 0 and to_close[1] >= 0 and to_close[0] <= 10 and to_close[1] <= 10\
+                    and to_close not in self.walls\
+                    and to_close != self.cat_pos:
+                possibilities.append(to_close)
+        if len(possibilities) == 0:
+            return None
+        else:
+            return random.choice(possibilities)
+
 
 
     def close_cat_is_near_exit(self):
@@ -127,14 +209,11 @@ class Catcher:
             goals_around = 0
             walls_around = 0
 
-            #Contando saídas ao redor
+            #Contando ao redor
             for neibour in neibours:
                 goals_around += 1 if neibour in self.goals and neibour not in self.walls else 0
                 walls_around += 1 if neibour in self.walls else 0
 
-            #Se a saída já estiver bloqueada, não bloquear
-            #if walls_around >= len(neibours):
-            #    return None
 
             if nearest['dist'] <= 5:
                 return nearest['pos']
@@ -183,13 +262,6 @@ class Catcher:
                      }
                     for i in range(11)] for j in range(11)]
 
-        # Calculate Score
-        #Score maior se:
-            #1. perto do gato
-            #2. é saída
-            #3. vizinho de saída
-            #4. perto de outros bloqueios
-
         grater_score = 1
         grater_score_element = None
 
@@ -199,10 +271,12 @@ class Catcher:
                 if not elem['cant_close']:
                     neibours = self.get_neibours(grid, (elem['row'], elem['col']), False)
 
+
                     score = 0
                     walls_around = 0
                     borders_around = 0
                     opposites_positives = 0
+                    goals_around = 0
                     
                     for direction in ["NW", "NE", "W" , "E" , "SW", "SE"]:
                         opposite = self.get_opposite(grid, (elem['row'], elem['col']), direction)
@@ -213,60 +287,63 @@ class Catcher:
 
                     for neibour in neibours:
                         if neibour['is_wall']: walls_around += 1
-                        if neibour['is_border']:borders_around += 1
+                        if neibour['is_border']: borders_around += 1
+                        if neibour['is_goal'] and not neibour['is_wall']: goals_around += 1
+
 
                     if walls_around >= len(neibours):
                         continue
 
-                    #cat_distance = Distance().hex_distance((elem['row'], elem['col']), self.cat_pos)
+                    inverse_goal_path_dist = 1
+                    distances = []
+                    valid_goals = [goal for goal in self.goals if goal not in self.walls]
+                    for goal in valid_goals:
+                        distance = self.path_distance(goal, (elem['row'], elem['col']))
+                        distances.append(distance)
+                    if len(distances) > 0 and distances[0] != 0:
+                        distances.sort(reverse=False)
+                        inverse_goal_path_dist += (1 / (sum(distances[0:len(distances)//5])/len(distances) + 0.01) * 10)
+                        score += inverse_goal_path_dist
+
+                    if elem['row'] + elem['col'] in [10,11]:
+                        score += 10 * inverse_goal_path_dist
+
+                    score += goals_around * 50
+
+                    if elem['row'] %2 == 0:
+                        score += 15
+
+                    if elem['col'] %3 == 0:
+                        score += 15
+
+                    if not elem['is_goal']:
+                        score += goals_around
+                    else:
+                        if self.path_distance((elem['row'], elem['col']), self.cat_pos) <= 5 and goals_around >= 3:
+                            score += goals_around * 2
+
+
+
                     cat_distance = self.path_distance( (elem['row'], elem['col']), self.cat_pos, max_dist=20)
+                    inverse_cat_distance = (1/(cat_distance + 0.1) ) * 100
+                    score += inverse_cat_distance
 
-                    #center_distance = Distance().hex_distance((elem['row'], elem['col']), (5,5)) + 1
-
-                    #if cat_distance == 1:
-                    #    cat_distance = 2
-
-                    inverse_cat_distance = (1/(cat_distance + 0.1) ) * 10
-                    inverse_walls_around = (1 /(walls_around + 0.1))
-                    #center_distance = int((1 / (center_distance + 0.1) ) * 10)
-                    # Se preocupa em prender o gato, não de evitar que chegue numa saída
+                    #inverse_walls_around = (1 /(walls_around + 0.1)) * 10
+                    #score += inverse_walls_around
 
 
-                    #Diagonais
-                    #score += 2 if \
-                    #    elem['row'] == elem['col'] or \
-                    #    elem['row'] == elem['col'] or \
-                    #    elem['row'] + elem['col'] == 10 or \
-                    #    elem['row'] + elem['col'] == 9 \
-                    #else 0
-
-
-                    #Cruz
-                    #score += 2 if \
-                    #    elem['row'] == 5 or\
-                    #    elem['col'] == 5 \
-                    #else 0
-                    #
-                    #if score == 14: score = 7
-
-                    #score += cat_distance
-
-                    #score += int (center_distance / 3)
-                    #score += int(walls_around/3)
-
-                    score += 10 if opposites_positives < 4 else 0
+                    #score += 10 if opposites_positives < 4 else 0
 
                     if cat_distance == 3:
-                        score += 15
+                        score += 15 * 2
                     if cat_distance == 2:
-                        score += 30
+                        score += 30 * 3
                     if cat_distance == 1:
                         score += 20
 
-                    score += inverse_cat_distance * 2
-                    score += inverse_walls_around
 
-
+                    if elem['is_goal']:
+                        score = score/5
                     elem['score'] = score
 
                     if elem['score'] > grater_score or (elem['score'] == grater_score and random.randint(0,5) == 0)\
@@ -294,7 +371,7 @@ class Catcher:
         '''
         Fecha uma posição aleatória no tabuleiro
         '''
-        used = self.walls.copy() + [self.cat_pos]
+        used = self.get_used_set()
         candidate = (random.randint(0, 10), random.randint(0, 10))
         while candidate in used:
             candidate = (random.randint(0, 10), random.randint(0, 10))
@@ -306,11 +383,7 @@ class Catcher:
         Fecha casas imediatamente ao redor do gato, de maneira aleatória
         '''
         cat = self.cat_pos
-        candidates = self.get_candidate_neibours(cat)
-
-        used = self.walls.copy()
-        used.append(cat)
-        candidates = [elem for elem in candidates if elem[0] > 0 and elem[0] <= 10 and elem[1] > 0 and elem[1] <= 10 and elem not in used]
+        candidates = self.get_neibours_position(cat, exclude_non_walkable=True)
         candidate = random.choice(candidates)
         return candidate
 
@@ -320,11 +393,7 @@ class Catcher:
         Fecha casas imediatamente ao redor do gato, dando prioridade a casas que já não estão cercadas por paredes        
         '''
         cat = self.cat_pos
-        candidates = self.get_candidate_neibours(cat)
-
-        used = self.walls.copy()
-        used.append(cat)
-        candidates = [elem for elem in candidates if elem[0] > 0 and elem[0] <= 10 and elem[1] > 0 and elem[1] <= 10 and elem not in used]
+        candidates = self.get_neibours_position(cat, exclude_non_walkable=True)
 
         if len(candidates) == 0:
             return None
@@ -388,11 +457,17 @@ class Catcher:
         max_distance = 500
         for goal in [elem for elem in self.goals if elem not in self.walls]:
             distance = self.path_distance(goal, self.cat_pos)
-
-            log.write('PATH DISTANCE FROM {} TO {} IS {}\n'.format(goal, self.cat_pos, distance))
-
             answer.append({'pos': goal, 'dist': distance})
         return answer
+
+
+    def get_valid_goal_neibours(self, rowcol):
+        neibours = self.get_neibours_position(rowcol=rowcol, exclude_non_walkable=True)
+        goal_count = 0
+        for neib in neibours:
+            if neib in self.goals:
+                goal_count += 1
+        return goal_count
 
 
     def get_exits_dist(self):
@@ -425,8 +500,7 @@ class Catcher:
         '''
         candidates = self.get_candidate_neibours(rowcol)
         if exclude_non_walkable:
-            used = self.walls.copy()
-            used.append(cat)
+            used = self.get_used_set()
             candidates = [elem for elem in candidates if elem[0] >= 0 and elem[0] <= 10 and elem[1] >= 0 and elem[1] <= 10 and elem not in used]
         else:
             candidates = [elem for elem in candidates if elem[0] >= 0 and elem[0] <= 10 and elem[1] >= 0 and elem[1] <= 10]
@@ -439,13 +513,17 @@ class Catcher:
         '''
         candidates = self.get_candidate_neibours(rowcol)
         if exclude_non_walkable:
-            used = self.walls.copy()
-            used.append(cat)
+            used = self.get_used_set()
             candidates = [grid[elem[0]][elem[1]] for elem in candidates if elem[0] >= 0 and elem[0] <= 10 and elem[1] >= 0 and elem[1] <= 10 and elem not in used]
         else:
             candidates = [grid[elem[0]][elem[1]] for elem in candidates if elem[0] >= 0 and elem[0] <= 10 and elem[1] >= 0 and elem[1] <= 10]
 
         return candidates
+
+    def get_used_set(self):
+        used = self.walls.copy()
+        used.add(cat)
+        return used
 
     def get_opposite_pos(self, rowcol, direction,exclude_non_walkable = True):
         '''
@@ -472,8 +550,7 @@ class Catcher:
 
         if candidate[0] >= 0 and candidate[0] <= 10 and candidate[1] >= 0 and candidate[1] <= 10:
             if exclude_non_walkable:
-                used = self.walls.copy()
-                used.append(cat)
+                used = self.get_used_set()
                 if candidate not in used:
                     return candidate
             else:
@@ -492,10 +569,6 @@ class Catcher:
             return grid[opposite_pos[0]][opposite_pos[1]]
 
     def path_distance(self, pos1, pos2, max_dist = math.inf):
-        log.write('PATH DISTANCE RECEIVING {} and {}\n'.format(pos1, pos2))
-
-        log.write('\t\tTEST {}\n'.format((5,5) in self.walls))
-
         grid = [[
                     {'row': j, 'col': i,
                      'is_wall': (j, i) in self.walls,
@@ -514,20 +587,15 @@ class Catcher:
                                     [(j + 1, i),      (j + 1, i + 1)  ]         [j % 2],
                                     ] if 0 <= elem[0] < 11 and 0 <= elem[1] < 11],
                      }
-                    for i in range(11)] for j in range(11)]
+                    for i in range(11)]
+                for j in range(11)]
 
         open_set = deque([pos1])
         closed_set = set()
 
-        log.write('is wall {}:{} {}:{}\n'.format(pos1, pos1 in self.walls, pos2, pos2 in self.walls))
-
-        log.write('OPENSET LEN = {}\n'.format(len(open_set)))
-
         while len(open_set) > 0:
             current = open_set.popleft()
 
-
-            #log.write('current {} x pos2 {}\n'.format(current, pos2))
             if current == pos2:
                 size_counter = 0
 
@@ -536,7 +604,6 @@ class Catcher:
                     temp = temp['previous']
                     size_counter += 1
 
-                log.write('DISTANCE FOUNDED : {}\n'.format(size_counter))
                 return size_counter
 
             valid_neighbors = [elem for elem in grid[current[0]][current[1]]['neibours']
@@ -557,35 +624,17 @@ class Catcher:
         #No solution
         return max_dist
 
-
-
-
-class Distance:
-    '''
-    Cálculo de distâncias em um grid hexagonal
-    '''
-
-    @staticmethod
-    def axial_to_cube(q, r):
-        x = r
-        z = q
-        y = -x - z
-        return (x, y, z)
-
-    def hex_distance(self, p0, p1):
-        x0, y0 = p0
-        x1, y1 = p1
-        first = Distance.axial_to_cube(x0, y0)
-        second = Distance.axial_to_cube(x1, y1)
-        return Distance.cube_distance(first[0], first[1], first[2], second[0], second[1], second[2])
-
-    @staticmethod
-    def cube_distance(ax, ay, az, bx, by, bz):
-        return (abs(ax - bx) + abs(ay - by) + abs(az - bz)) / 2
-
+#try:
 
 c = Catcher(walls=blocks, goals=exits, cat_pos=cat)
-print(c.catch_them_all)
+result = c.catch_them_all()
+log.write(str(result) + '\n')
+print(result)
+
+#except Exception as e:
+#    print(e)
+
+
 #print(c.path_distance((4,10), (5, 5)))
 log.close()
 
