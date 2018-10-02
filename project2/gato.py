@@ -4,6 +4,8 @@ import sys
 import random
 import math
 
+random.seed(256)
+
 
 cat    = eval(sys.argv[1])
 blocks = eval(sys.argv[2])

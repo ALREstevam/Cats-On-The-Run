@@ -109,4 +109,4 @@ def thread_creator(confs, threads):
 
 #thread_creator([confs[27]], 1)#Tests first only
 #thread_creator(confs[0:len(confs)//4], 2)#Tests first 25% only
-thread_creator(confs, 4)#Tests all
+thread_creator(confs, 2)#Tests all

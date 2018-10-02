@@ -1,7 +1,5 @@
 import sys
 import random
-import math
-from random import shuffle
 from collections import deque
 import math
 from HexDistance import Distance
@@ -11,37 +9,17 @@ cat = eval(sys.argv[1])
 blocks = eval(sys.argv[2])
 exits = eval(sys.argv[3])
 
-class False_log:
-    def write(self, str):
-        pass
-    def close(self):
-        pass
-
-#log = open('logfile.txt', 'a+')
-log = False_log()
-
-log.write('cat: {}\n'.format(cat))
-log.write('blocks: {}\n'.format(blocks))
-log.write('exits: {}\n'.format(exits))
-
-
 class Catcher:
     def __init__(self, cat_pos, walls : [], goals : []):
-        log.write('INITING CATCHER!\n')
         self.cat_pos = tuple(cat_pos)
         self.walls = set(walls)
         self.goals = set(goals)
-
-        pass
-
-
 
     def catch_them_all(self):
         solutions = []
 
         #Lista de métodos com diferentes formas de capturar o gato, executados na ordem que aparecem na lista
         #Caso retorne None ou lance exceção, passa para o próximo método da lista
-        #O nome colocado vai ser gravado no arquivo de log (ou não)
 
 
         solutions.append([self.catch_trapped_cat,                       'catchTrapped'])
@@ -62,23 +40,21 @@ class Catcher:
             try:
                 res = solution[0]()
                 if self.evaluate_solution(res, solution[1]):
-                    log.write('\tRETURNING : `{}`\n\n'.format(res))
                     return res
 
             except Exception as ex:
-                log.write('EXCEPTION {}\n'.format(str(ex)))
                 pass
 
     def evaluate_solution(self, solution, solution_name = 'NoNameSolution'):
         '''
         Método para avaliar a qualidade de uma solução (uma segunda camada se segurança para conferir se a posição é válida)
         '''
-
-
-        log.write('{} CHOOSED xy:`{}`\n'.format(solution_name, str(solution)))
         return solution is not None
 
     def close_cat_is_near_exit_pathdist(self):
+        '''
+        Fecha saídas em que o gato está próximo (usando path distance)
+        '''
         if len([elem for elem in self.goals if elem not in self.walls]) > 0:
             nearest_exits = self.get_exits_path_dist()
 
@@ -96,11 +72,7 @@ class Catcher:
 
             nearest = random.choice(near_goals)
 
-            log.write('MIN DISTANCES\n')
-            log.write(str(nearest_exits))
-            log.write('\n')
-
-            if nearest['dist'] <= 4:
+            if nearest['dist'] <= 4.9:
                 return nearest['pos']
             elif nearest['dist'] <= 7:
                 goals_count = self.get_valid_goal_neibours(nearest['pos'])
@@ -110,11 +82,18 @@ class Catcher:
                 return None
 
     def close_stategic(self):
+        '''
+        Fecha nós que tem muitas saídas ao seu redor
+        '''
         for i in range(11):
             for j in range(11):
                 elem = (j,i)
                 goal_count = self.get_valid_goal_neibours(elem)
+                cat_neibours = self.get_valid_goal_neibours(self.cat_pos)
                 if goal_count >= 4 and self.path_distance(elem, self.cat_pos) > 4 and elem not in self.walls and elem != self.cat_pos:
+                    return elem
+                if goal_count >= 2 and self.path_distance(elem, self.cat_pos) == 2\
+                        and len(cat_neibours) == 0 and elem not in self.walls and elem != self.cat_pos:
                     return elem
         return None
 
@@ -122,6 +101,9 @@ class Catcher:
 
 
     def mess_with_cat(self):
+        '''
+        Fecha posíveis saídas ao redor do gato
+        '''
         cat = self.cat_pos
 
         cat_neib = self.get_neibours_position(cat, exclude_non_walkable=True)
@@ -130,7 +112,6 @@ class Catcher:
         for neib in cat_neib:
             if neib in self.goals:
                 return None
-
 
         r = cat[0]
         c = cat[1]
@@ -164,10 +145,13 @@ class Catcher:
             fisrt_match = el1 in self.walls  or el1[0] < 0 or el1[1] < 0 or el1[0] > 10 or el1[1] > 10
             second_match = el2 in self.walls or el2[0] < 0 or el2[1] < 0 or el2[0] > 10 or el2[1] > 10
 
+            to_close_neibours = self.get_neibours_position(to_close, exclude_non_walkable=True)
+
             if fisrt_match and second_match \
                     and to_close[0] >= 0 and to_close[1] >= 0 and to_close[0] <= 10 and to_close[1] <= 10\
                     and to_close not in self.walls\
-                    and to_close != self.cat_pos:
+                    and to_close != self.cat_pos\
+                    and len(to_close_neibours) >= 1:
                 possibilities.append(to_close)
         if len(possibilities) == 0:
             return None
@@ -188,9 +172,6 @@ class Catcher:
             if nearest_exits is None:
                 return None
 
-            #Pegando nearest por MIN
-            #nearest = min(nearest_exits, key=lambda elem: elem['dist'])
-            #Pegando nearest por SORT
             nearest_exits.sort(key=lambda elem: elem['dist'])
             nearest = nearest_exits[0]
             mins = []
@@ -352,15 +333,15 @@ class Catcher:
                         grater_score_element = elem
 
 
-        count = 1
-        for row in grid:
-            if count == -1:
-                log.write('   ')
-            for elem in row:
-                count *= -1
-                log.write('[{:^2}]'.format(int(elem['score'])))
-            log.write('\n')
-        log.write('\n')
+        #count = 1
+        #for row in grid:
+        #    if count == -1:
+        #        log.write('   ')
+        #    for elem in row:
+        #        count *= -1
+        #        log.write('[{:^2}]'.format(int(elem['score'])))
+        #    log.write('\n')
+        #log.write('\n')
 
         if grater_score_element is None:
             return None
@@ -624,17 +605,9 @@ class Catcher:
         #No solution
         return max_dist
 
-#try:
-
 c = Catcher(walls=blocks, goals=exits, cat_pos=cat)
 result = c.catch_them_all()
-log.write(str(result) + '\n')
 print(result)
 
-#except Exception as e:
-#    print(e)
 
-
-#print(c.path_distance((4,10), (5, 5)))
-log.close()
 
