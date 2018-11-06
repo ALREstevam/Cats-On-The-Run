@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<!--
+	<meta http-equiv="refresh" content="3" />
+-->
+
+	<style type="text/css">
+		.flex-container {
+		  display: flex;
+		  background-color: DodgerBlue;
+		}
+
+		.flex-container > div {
+		  background-color: #f1f1f1;
+		  margin: 10px;
+		  padding: 10px;
+		  font-size: 30px;
+		}
+	</style>
+</head>
+<body>
+
+
+	<div style="" class="flex-container">
+		<div>
+		<img src='games/proto.png' id="game">
+		</div>
+		<div><iframe 
+			src="catcher.html" frameborder="0" height="100%" width="550px" id="ifrm" ></iframe>
+	</div>
+
+
+
+    <script type="text/javascript">
+
+    	document.getElementById("ifrm").contentWindow.scrollTo(0,document.getElementById("ifrm").contentWindow.document.body.scrollHeight)
+
+		setInterval(function() {
+		    var myImageElement = document.getElementById('game');
+		    myImageElement.src = "games/proto.png?" + new Date().getTime();
+		    document.getElementById('ifrm').src = "catcher.html?" + new Date().getTime();
+		    
+		    //var textarea = document.getElementById('ifrm');
+			//textarea.scrollTop = textarea.scrollHeight;
+			//textarea.contentWindow.scrollTo(0,1000000);
+
+			//frames[0].scrollTo(0,9999999)
+
+			document.getElementById("ifrm").contentWindow.scrollTo(0,document.getElementById("ifrm").contentWindow.document.body.scrollHeight)
+		}, 2000);
+
+    </script>
+
+</body>
+</html>

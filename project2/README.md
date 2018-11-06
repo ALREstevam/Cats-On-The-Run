@@ -9,14 +9,16 @@
 
 ## Execução
 
-O pegador é ativado pela execução do arquivo `my_catcher.py`. O mesmo diretório deve conter o arquivo `HexDistance.py`.
+O pegador é ativado pela execução do arquivo `my_catcher.py`,
+no mesmo diretório deve estar o arquivo `HexDistance.py`.
 
 
 ### Outros códigos desenvolvidos/modificados
+
 * `game.py`
 	* alterado para:
 		* Gerar arquivos `.gif` coloridos
-		* Modficar o desenho do gato
+		* Modificar o desenho do gato
 		* Testar se o catcher devolveu uma posição fora do tabuleiro
 		* Mostrar no modo debug quais coordenadas enviadas pelo catcher que causaram o erro
 
@@ -50,3 +52,4 @@ O pegador é ativado pela execução do arquivo `my_catcher.py`. O mesmo diretó
 
 [Todos os projetos da disciplina](https://github.com/ALREstevam/Cats-On-The-Run)
 [Projeto II](https://github.com/ALREstevam/Cats-On-The-Run/tree/master/project2)
+

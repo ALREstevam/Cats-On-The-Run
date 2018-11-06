@@ -1,0 +1,23 @@
+C:.
+|   gato3.py
+|   scores_calculator_cat.py
+|
++---cats
+|   |   CatFather.py
+|   |
+|   +---astarcat
+|   |   |   AstarCat.py
+|   |   |   HeuristicValuesCalculator.py
+|   |   |
+|   +---catshelper
+|   |   |   DistanceCalculator.py
+|   |   |   Path.py
+|   |
++---grid
+|   |   Cell.py
+|   |   Grid.py
+|
+\---util
+    |   Directions.py
+    |   Helper.py
+    |   HexDistance.py

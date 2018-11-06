@@ -1,0 +1,44 @@
+
+----------------------------------------------------------------------
+USING method [first_move]
+CHOOSED POSITION: [None]
+
+----------------------------------------------------------------------
+USING method [danger_pos_closer]
+CHOOSED POSITION: [(4, 1)]
+RETURNING: [(4, 1)]
+
+----------------------------------------------------------------------
+USING method [first_move]
+CHOOSED POSITION: [None]
+
+----------------------------------------------------------------------
+USING method [danger_pos_closer]
+CHOOSED POSITION: [(1, 1)]
+RETURNING: [(1, 1)]
+
+----------------------------------------------------------------------
+USING method [first_move]
+CHOOSED POSITION: [None]
+
+----------------------------------------------------------------------
+USING method [danger_pos_closer]
+CHOOSED POSITION: [None]
+
+----------------------------------------------------------------------
+USING method [catNearExitPathDist]
+CHOOSED POSITION: [(0, 3)]
+RETURNING: [(0, 3)]
+
+----------------------------------------------------------------------
+USING method [first_move]
+CHOOSED POSITION: [None]
+
+----------------------------------------------------------------------
+USING method [danger_pos_closer]
+CHOOSED POSITION: [None]
+
+----------------------------------------------------------------------
+USING method [catNearExitPathDist]
+CHOOSED POSITION: [(0, 4)]
+RETURNING: [(0, 4)]
